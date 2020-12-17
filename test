@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+
+import requests
+
+url = "https://api.hh.ru/"
+headers = {
+    "Authorization": "Bearer JOIN9M0LTBRLMF0S1JBLA2VUSFHAPSJF63PGT89P96D6HGNNHALD7QL2PSTKUD8P"
+}
+
+class TestCase:
+    def __init__(self, text, check):
+        self.text = text
+        self.check = check
+
+    def __str__(self):
+        return self.text
+
+def run(case):
+    r = requests.get(url + f'vacancies?text={case.text}', headers=headers)
+    return (case.__str__(), case.check(r.json()))
+
+testCases = []
+
+# -----------------------------------------------
+# Test1
+
+text1 = ''
+
+def check1(json):
+    return ('Result must not be empty', len(json['items']) > 0)
+
+testCases.append(TestCase(text1, check1))
+
+# Test2
+
+text2 = 'a' * (10**2)
+
+def check2(json):
+    return ('Result must be empty', len(json['items']) == 0)
+
+testCases.append(TestCase(text2, check2))
+
+# Test3 
+
+text3 = 'a' * 256 # 'a' * 255 - проходит
+def check3(json):
+    return ('Result must be empty', len(json['items']) == 0)
+
+testCases.append(TestCase(text3, check3))
+
+# ------------------------------------------------
+# Test4, 5, 6, 7, 8, 9, 10 ..
+
+words = ['!программист', '!грузчик', '!кассир', '!java !программист', '!дикси !кассир']
+
+def findWord(word):
+    message = 'Result contains given word(s)'
+    def check(json):
+        for it in json['items']:
+            for w in word.split():
+                if w[1:].lower() not in it.__str__().lower():
+                    return (message, False)
+        return (message, True)
+    return check
+
+for w in words:
+    testCases.append(TestCase(f'NAME:({w})', findWord(w)))
+
+# ------------------------------------------------
+
+text4 = 'программист NOT java'
+def check4(json):
+    message = 'Result contains программист and not contain java'
+    for it in json['items']:
+        if 'java' in it.__str__().lower():
+            return (message, False)
+        if not 'программист' in it.__str__().lower():
+            return (message, False)
+    return (message, True)
+
+testCases.append(TestCase(text4, check4))
+
+
+
+
+def main():
+    for res in list(map(run, testCases)):
+        print(res)
+
+
+
+if __name__ == '__main__':
+    main()
