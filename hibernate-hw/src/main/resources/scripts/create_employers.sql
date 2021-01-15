@@ -6,6 +6,7 @@ create table if not exists area (
 create table if not exists employer (
   employer_id serial primary key,
   company_name varchar(100) not null,
+  employees_count int,
   creation_time timestamp,
   block_time timestamp
 );

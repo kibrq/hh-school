@@ -2,6 +2,9 @@ package ru.hh.school.dao;
 
 import org.hibernate.SessionFactory;
 import ru.hh.school.entity.Employer;
+import ru.hh.school.entity.Vacancy;
+
+import java.util.List;
 
 public class EmployerDao extends GenericDao {
 
@@ -16,10 +19,13 @@ public class EmployerDao extends GenericDao {
    * <p>
    * https://vladmihalcea.com/the-best-way-to-handle-the-lazyinitializationexception/
    */
+
   public Employer getEager(int employerId) {
-    return getSession()
-        .createQuery("from Employer employer", Employer.class)
-        .getSingleResult();
+    return getSession().createQuery("select distinct e " +
+            "from Employer e " +
+            "join fetch e.vacancies " +
+            "where e.id = :employerId", Employer.class)
+            .setParameter("employerId", employerId).getSingleResult();
   }
 
 }
