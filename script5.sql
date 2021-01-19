@@ -8,9 +8,10 @@ WITH vacancy_count AS (
 SELECT e.employer_name
 FROM employer e
   LEFT JOIN vacancy_count vc ON vc.id = e.employer_id
-GROUP BY e.employer_name
+GROUP BY e.employer_id
 ORDER BY MAX(
-  CASE WHEN vc.cnt IS NULL THEN 0
+  CASE WHEN vc.cnt IS NULL
+       THEN 0
        ELSE vc.cnt
   END) DESC
 LIMIT 5;
