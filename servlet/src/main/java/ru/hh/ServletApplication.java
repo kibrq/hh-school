@@ -3,19 +3,16 @@ package ru.hh;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import ru.hh.servlets.ClearCounterServlet;
-import ru.hh.servlets.CounterServlet;
+import ru.hh.servlets.CounterServletHolder;
 
 public class ServletApplication {
 
   private static Server createServer(int port) {
     Server server = new Server(port);
     ServletHandler handler = new ServletHandler();
-    Counter counter = new Counter();
-    CounterServlet counterServlet = new CounterServlet(counter);
-    ClearCounterServlet clearServlet = new ClearCounterServlet(counter);
-    handler.addServletWithMapping(new ServletHolder(counterServlet), "/counter");
-    handler.addServletWithMapping(new ServletHolder(clearServlet), "/counter/clear");
+    CounterServletHolder holder = new CounterServletHolder();
+    handler.addServletWithMapping(new ServletHolder(holder.getBaseServlet()), "/counter");
+    handler.addServletWithMapping(new ServletHolder(holder.getClearServlet()), "/counter/clear");
     server.setHandler(handler);
     return server;
   }
