@@ -4,7 +4,6 @@ package ru.hh.resource;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Map;
 
 @Path("/counter/")
@@ -84,11 +83,9 @@ public class CounterResource {
         String value = headers.getHeaderString(SUBTRACTION_VALUE_HEADER);
         try {
             counter.dec(Integer.parseInt(value));
-            System.out.println(Integer.parseInt(value));
         } catch (NumberFormatException ex) {
             throw new BadRequestException(SUBTRACTION_VALUE_HEADER + "must be an integer");
         }
-        System.out.println(value);
         return Response.ok().build();
     }
 

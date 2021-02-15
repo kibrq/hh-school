@@ -8,23 +8,23 @@ import org.glassfish.jersey.servlet.ServletContainer;
 
 public class JerseyApplication {
 
-  private static Server createServer(int port) {
-    Server server = new Server(port);
+    private static Server createServer(int port) {
+        Server server = new Server(port);
 
-    ServletContextHandler context = new ServletContextHandler();
+        ServletContextHandler context = new ServletContextHandler();
 
-    server.setHandler(context);
+        server.setHandler(context);
 
-    ServletHolder holder = context.addServlet(ServletContainer.class, "/*");
-    holder.setInitOrder(1);
-    holder.setInitParameter("javax.ws.rs.Application", ApplicationConfig.class.getName());
+        ServletHolder holder = context.addServlet(ServletContainer.class, "/*");
+        holder.setInitOrder(1);
+        holder.setInitParameter("javax.ws.rs.Application", ApplicationConfig.class.getName());
 
-    return server;
-  }
+        return server;
+    }
 
-  public static void main(String[] args) throws Exception {
-    Server server = createServer(8080);
-    server.start();
-    server.join();
-  }
+    public static void main(String[] args) throws Exception {
+        Server server = createServer(8080);
+        server.start();
+        server.join();
+    }
 }
