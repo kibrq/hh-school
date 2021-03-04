@@ -1,15 +1,33 @@
 from decorators import cache_decorator
+import operator as op
 
+
+def tooperation(operation):
+    if operation == '+':
+        return op.add
+    if operation == '-':
+        return op.sub
+    if operation == '/':
+        return op.truediv
+    if operation == '*':
+        return op.mul
+    if operation == '**':
+        return op.pow
+    raise ValueError('Unsupported operation: ' + operation)
+
+
+@cache_decorator
 def calculator(a, b, operation):
-    # Здесь нужно реализовать функцию,
-    # которая реализует основные арифметические операции между числами: +, -, /, *, **.
-    # Так же следует сделать проверку, что поступивший оператор корректен (присутствует в этом списке +, -, /, *, **)
-    return a + b
+    return tooperation(operation)(a, b)
 
 
 if __name__ == '__main__':
-    a = int(input('Введите число: ')) # Тут было бы неплохо обрабатывать ошибку в случае передачи некорректных символов
-    b = int(input('Введите число: '))
-    operation = input('Введите операцию')
+    while True:
+        try:
+            a = int(input('Введите число: '))
+            b = int(input('Введите число: '))
+            operation = input('Введите операцию: ')
 
-    print('Результат: ', calculator(a, b, operation))
+            print('Результат: ', calculator(a, b, operation))
+        except ValueError as v:
+            print(v)
