@@ -8,6 +8,5 @@ import ru.hh.school.config.CommonConfig;
 @Import({
   NabTestConfig.class,
   NabHibernateTestBaseConfig.class,
-  CommonConfig.class
 })
 public class AppTestConfig {}
