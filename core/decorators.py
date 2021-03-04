@@ -5,3 +5,4 @@ def cache_decorator(func):
             d[args] = func(*args, **kwargs)
         return d[args]
     return inner
+

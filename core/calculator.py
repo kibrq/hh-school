@@ -31,3 +31,4 @@ if __name__ == '__main__':
             print('Результат: ', calculator(a, b, operation))
         except ValueError as v:
             print(v)
+

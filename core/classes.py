@@ -15,3 +15,4 @@ class Garage:
 
     def delete(self, index):
         self.cars.pop(index)
+

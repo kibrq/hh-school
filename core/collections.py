@@ -48,3 +48,4 @@ def count_symbols(some_string):
     for c in some_string:
         d[c] = d.get(c, 0) + 1
     return d
+
