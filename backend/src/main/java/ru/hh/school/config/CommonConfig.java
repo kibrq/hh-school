@@ -11,10 +11,10 @@ import ru.hh.nab.hibernate.MappingConfig;
 import ru.hh.nab.hibernate.NabHibernateProdConfig;
 import ru.hh.nab.hibernate.NabSessionFactoryBean;
 import ru.hh.nab.starter.NabCommonConfig;
-import ru.hh.school.dao.EmployerDao;
 import ru.hh.school.dao.GenericDao;
-import ru.hh.school.service.EmployerFavoritesService;
-import ru.hh.school.service.EmployerOuterService;
+import ru.hh.school.resource.FavoritesVacancyResource;
+import ru.hh.school.resource.VacancyResource;
+import ru.hh.school.service.*;
 import ru.hh.school.resource.EmployerResource;
 import ru.hh.school.resource.FavoritesEmployerResource;
 
@@ -30,10 +30,13 @@ import java.util.Properties;
         NabCommonConfig.class,
         EmployerResource.class,
         FavoritesEmployerResource.class,
+        VacancyResource.class,
+        FavoritesVacancyResource.class,
         EmployerOuterService.class,
+        VacancyOuterService.class,
         EmployerFavoritesService.class,
-        GenericDao.class,
-        EmployerDao.class
+        VacancyFavoritesService.class,
+        GenericDao.class
 })
 public class CommonConfig {
 

@@ -4,6 +4,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository("genericDao")
 public class GenericDao {
     protected final SessionFactory sessionFactory;
@@ -18,6 +20,12 @@ public class GenericDao {
 
     public <T> void delete(Class<T> clazz, Long id) {
         session().delete(getById(clazz, id));
+    }
+
+    public <T> List<T> getAll(Class<T> clazz) {
+        String name = clazz.getName();
+        name = name.substring(name.lastIndexOf('.') + 1);
+        return session().createQuery("select e from " + name + " e", clazz).getResultList();
     }
 
     public void saveOrUpdate(Object object) {

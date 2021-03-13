@@ -1,7 +1,10 @@
 package ru.hh.school.entity;
 
 import com.fasterxml.jackson.annotation.*;
-import ru.hh.school.util.EmployerViews;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import ru.hh.school.util.json.serializers.LocalDateTimeDeserializer;
+import ru.hh.school.util.json.serializers.LocalDateTimeSerializer;
+import ru.hh.school.util.json.views.EmployerViews;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -9,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "employer")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Employer {
+public class Employer extends AbstractEntity {
 
     private static final int MAX_DESCRIPTION_LENGTH = 256;
 
@@ -26,7 +29,7 @@ public class Employer {
     @Column(name = "description")
     private String description;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "area_id")
     private Area area;
 
@@ -34,21 +37,31 @@ public class Employer {
     private String comment;
 
     @Column(name = "views_count")
-    private Integer viewsCount = 0;
+    private int viewsCount = 0;
 
     protected Employer() {
     }
 
+    @Override
     @JsonProperty
     @JsonView(EmployerViews.Short.class)
     public Long getId() {
         return id;
     }
 
+    @Override
     @JsonProperty
     @JsonView(EmployerViews.Short.class)
     public void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    protected void refreshImpl(AbstractEntity entity) {
+        Employer other = (Employer) entity;
+        setName(other.name);
+        setDescription(other.description);
+        setArea(other.area);
     }
 
     @JsonProperty
@@ -63,11 +76,15 @@ public class Employer {
         this.name = name;
     }
 
+    @Override
+    @JsonProperty(value = "date_create")
     @JsonView(EmployerViews.FavoriteDetailed.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
     public LocalDateTime getCreateDate() {
         return createDate;
     }
 
+    @Override
     @JsonIgnore
     public void setCreateDate(LocalDateTime createDate) {
         this.createDate = createDate;
@@ -97,12 +114,14 @@ public class Employer {
         this.area = area;
     }
 
+    @Override
     @JsonProperty
     @JsonView(EmployerViews.FavoriteDetailed.class)
     public String getComment() {
         return comment;
     }
 
+    @Override
     @JsonProperty
     @JsonView(EmployerViews.FavoriteDetailed.class)
     public void setComment(String comment) {
@@ -112,28 +131,26 @@ public class Employer {
     @JsonProperty
     @JsonView(EmployerViews.FavoriteDetailed.class)
     public String getPopularity() {
-        return Popularity.getByViews(viewsCount).name();
+        return super.getPopularity();
     }
 
-    @JsonProperty
+    @Override
+    @JsonProperty(value = "views_count")
     @JsonView(EmployerViews.FavoriteDetailed.class)
-    public Integer getViewsCount() {
+    public int getViewsCount() {
         return viewsCount;
     }
 
+    @Override
     @JsonProperty
     @JsonView(EmployerViews.FavoriteDetailed.class)
-    public void setViewsCount(Integer viewsCount) {
+    public void setViewsCount(int viewsCount) {
         this.viewsCount = viewsCount;
     }
 
     public void refresh(String comment) {
         this.createDate = LocalDateTime.now();
         this.comment = comment;
-    }
-
-    public void seen() {
-        this.viewsCount += 1;
     }
 
 }

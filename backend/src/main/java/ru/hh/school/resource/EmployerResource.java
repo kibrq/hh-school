@@ -3,15 +3,13 @@ package ru.hh.school.resource;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import ru.hh.school.service.EmployerOuterService;
-import ru.hh.school.util.EmployerViews;
+import ru.hh.school.util.json.views.EmployerViews;
 import ru.hh.school.util.Pagination;
 
-import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Singleton
 @Path("/employer")
 public class EmployerResource {
 
@@ -26,7 +24,7 @@ public class EmployerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @JsonView(EmployerViews.Short.class)
     public Response getEmployers(@QueryParam("query") String query, @QueryParam("page") Integer page, @QueryParam("per_page") Integer perPage) throws EmployerOuterService.OuterAPIException, JsonProcessingException {
-        return Response.ok(outerService.getShortEmployers(query, new Pagination(page, perPage))).build();
+        return Response.ok(outerService.getEmployers(query, new Pagination(page, perPage))).build();
     }
 
 
@@ -35,6 +33,6 @@ public class EmployerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @JsonView(EmployerViews.Detailed.class)
     public Response getEmployer(@PathParam("employerId") Long employerId) throws EmployerOuterService.OuterAPIException, JsonProcessingException {
-        return Response.ok(outerService.getFullEmployer(employerId)).build();
+        return Response.ok(outerService.getEmployer(employerId)).build();
     }
 }
