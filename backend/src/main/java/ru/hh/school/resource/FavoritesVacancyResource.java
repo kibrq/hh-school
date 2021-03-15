@@ -1,17 +1,16 @@
 package ru.hh.school.resource;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import ru.hh.school.entity.Employer;
-import ru.hh.school.entity.Vacancy;
+import ru.hh.school.dto.EmployerOuterDtoDetailed;
+import ru.hh.school.dto.VacancyOuterDtoDetailed;
+import ru.hh.school.exceptions.FavoritesException;
+import ru.hh.school.exceptions.HhApiException;
 import ru.hh.school.service.EmployerOuterService;
-import ru.hh.school.service.GenericFavoritesService;
+import ru.hh.school.service.FavoritesVacancyService;
 import ru.hh.school.service.VacancyOuterService;
 import ru.hh.school.util.Pagination;
-import ru.hh.school.util.json.views.CombinationViews;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -22,14 +21,12 @@ public class FavoritesVacancyResource {
 
     private final VacancyOuterService vacancyOuterService;
     private final EmployerOuterService employerOuterService;
-    private final GenericFavoritesService employerFavoritesService;
-    private final GenericFavoritesService vacancyFavoritesService;
+    private final FavoritesVacancyService service;
 
-    public FavoritesVacancyResource(VacancyOuterService vacancyOuterService, EmployerOuterService employerOuterService, @Qualifier("employerService") GenericFavoritesService employerFavoritesService, @Qualifier("vacancyService") GenericFavoritesService vacancyFavoritesService) {
+    public FavoritesVacancyResource(VacancyOuterService vacancyOuterService, EmployerOuterService employerOuterService, FavoritesVacancyService service) {
         this.vacancyOuterService = vacancyOuterService;
         this.employerOuterService = employerOuterService;
-        this.employerFavoritesService = employerFavoritesService;
-        this.vacancyFavoritesService = vacancyFavoritesService;
+        this.service = service;
     }
 
     private static class CreateRequestBody {
@@ -42,23 +39,17 @@ public class FavoritesVacancyResource {
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void createFavoriteVacancy(CreateRequestBody request) throws EmployerOuterService.OuterAPIException, JsonProcessingException {
-        Vacancy vacancy = vacancyOuterService.getVacancy(request.vacancyId);
-        if (employerFavoritesService.getEntity(vacancy.getEmployer().getId(), Employer.class) == null) {
-            employerFavoritesService.post(
-                    employerOuterService.getEmployer(vacancy.getEmployer().getId()),
-                    request.comment
-            );
-        }
-        vacancyFavoritesService.post(vacancy, request.comment);
+    public void createFavoriteVacancy(CreateRequestBody request) throws HhApiException {
+        VacancyOuterDtoDetailed vacancyDto = vacancyOuterService.getVacancy(request.vacancyId);
+        EmployerOuterDtoDetailed employerDto = employerOuterService.getEmployer(vacancyDto.getEmployer().getId());
+        service.postVacancy(vacancyDto, employerDto, request.comment);
     }
 
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    @JsonView(CombinationViews.EmployerFavoriteDetailedAndVacancyFavoriteDetailed.class)
     public Response getAllFavoriteVacancies(@QueryParam("page") Integer page, @QueryParam("per_page") Integer perPage) {
-        return Response.ok(vacancyFavoritesService.getEntities(new Pagination(page, perPage), Vacancy.class)).build();
+        return Response.ok(service.getVacancies(new Pagination(page, perPage))).build();
     }
 
     private static class UpdateRequestBody {
@@ -69,21 +60,20 @@ public class FavoritesVacancyResource {
     @PUT
     @Path("/{vacancyId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void updateEmployer(@PathParam("vacancyId") Long vacancyId, UpdateRequestBody request) {
-        vacancyFavoritesService.update(vacancyId, request.comment, Vacancy.class);
+    public void updateVacancy(@PathParam("vacancyId") Long vacancyId, UpdateRequestBody request) {
+        service.updateComment(vacancyId, request.comment);
     }
 
     @DELETE
-    @Path("/{employerId}")
-    public void deleteEmployer(@PathParam("employerId") Long employerId) {
-        vacancyFavoritesService.delete(employerId, Vacancy.class);
+    @Path("/{vacancyId}")
+    public void deleteVacancy(@PathParam("vacancyId") Long vacancyId) {
+        service.delete(vacancyId);
     }
 
     @POST
     @Path("/{vacancyId}/refresh")
-    public void refreshEmployer(@PathParam("vacancyId") Long vacancyId) throws EmployerOuterService.OuterAPIException, JsonProcessingException {
-        vacancyFavoritesService.refresh(
-                vacancyOuterService.getVacancy(vacancyId)
-        );
+    public void refreshEmployer(@PathParam("vacancyId") Long vacancyId) throws HhApiException {
+        VacancyOuterDtoDetailed vacancyDto = vacancyOuterService.getVacancy(vacancyId);
+        service.refresh(vacancyDto);
     }
 }

@@ -4,7 +4,7 @@ CREATE TABLE area (
 );
 
 CREATE TABLE employer (
-    employer_id integer primary key,
+    id integer primary key,
     name        varchar(100) not null,
     date_create timestamp,
     description varchar(256),
@@ -14,7 +14,7 @@ CREATE TABLE employer (
 );
 
 CREATE TABLE vacancy (
-    vacancy_id      integer primary key,
+    id      integer primary key,
     name            varchar(100) not null,
     date_create     timestamp,
     salary_to       integer,
@@ -22,7 +22,7 @@ CREATE TABLE vacancy (
     salary_currency varchar(16),
     salary_gross    boolean,
     area_id         integer references area (area_id),
-    employer_id     integer references employer (employer_id),
+    employer_id     integer references employer (id),
     created_at      timestamp,
     comment         varchar(100),
     views_count     integer

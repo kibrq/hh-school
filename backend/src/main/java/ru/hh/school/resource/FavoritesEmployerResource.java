@@ -1,16 +1,13 @@
 package ru.hh.school.resource;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 
-import ru.hh.school.entity.Employer;
+import ru.hh.school.dto.EmployerOuterDtoDetailed;
+import ru.hh.school.exceptions.HhApiException;
 import ru.hh.school.service.EmployerOuterService;
-import ru.hh.school.service.GenericFavoritesService;
-import ru.hh.school.util.json.views.EmployerViews;
+import ru.hh.school.service.FavoritesEmployerService;
 import ru.hh.school.util.Pagination;
 
 import javax.inject.Singleton;
@@ -24,11 +21,11 @@ public class FavoritesEmployerResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(FavoritesEmployerResource.class);
 
     private final EmployerOuterService outerService;
-    private final GenericFavoritesService favoritesService;
+    private final FavoritesEmployerService innerService;
 
-    public FavoritesEmployerResource(EmployerOuterService outerService, @Qualifier("employerService") GenericFavoritesService favoritesService) {
+    public FavoritesEmployerResource(EmployerOuterService outerService, FavoritesEmployerService innerService) {
         this.outerService = outerService;
-        this.favoritesService = favoritesService;
+        this.innerService = innerService;
     }
 
     private static class CreateRequestBody {
@@ -41,19 +38,16 @@ public class FavoritesEmployerResource {
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void createFavoriteEmployer(CreateRequestBody request) throws EmployerOuterService.OuterAPIException, JsonProcessingException {
-        favoritesService.post(
-                outerService.getEmployer(request.employerId),
-                request.comment
-        );
+    public void createFavoriteEmployer(CreateRequestBody request) throws HhApiException {
+        EmployerOuterDtoDetailed employerDto = outerService.getEmployer(request.employerId);
+        innerService.postEmployer(employerDto, request.comment);
     }
 
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    @JsonView(EmployerViews.FavoriteDetailed.class)
     public Response getAllFavoriteEmployers(@QueryParam("page") Integer page, @QueryParam("per_page") Integer perPage) {
-        return Response.ok(favoritesService.getEntities(new Pagination(page, perPage), Employer.class)).build();
+        return Response.ok(innerService.getEmployers(new Pagination(page, perPage))).build();
     }
 
     private static class UpdateRequestBody {
@@ -65,21 +59,20 @@ public class FavoritesEmployerResource {
     @Path("/{employerId}")
     @Consumes(MediaType.APPLICATION_JSON)
     public void updateEmployer(@PathParam("employerId") Long employerId, UpdateRequestBody request) {
-        favoritesService.update(employerId, request.comment, Employer.class);
+        innerService.updateComment(employerId, request.comment);
     }
 
     @DELETE
     @Path("/{employerId}")
     public void deleteEmployer(@PathParam("employerId") Long employerId) {
-        favoritesService.delete(employerId, Employer.class);
+        innerService.delete(employerId);
     }
 
     @POST
     @Path("/{employerId}/refresh")
-    public void refreshEmployer(@PathParam("employerId") Long employerId) throws EmployerOuterService.OuterAPIException, JsonProcessingException {
-        favoritesService.refresh(
-                outerService.getEmployer(employerId)
-        );
+    public void refreshEmployer(@PathParam("employerId") Long employerId) throws HhApiException {
+        EmployerOuterDtoDetailed employerDto = outerService.getEmployer(employerId);
+        innerService.refresh(employerDto);
     }
 
 }

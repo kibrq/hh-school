@@ -1,10 +1,10 @@
 package ru.hh.school.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 
-import ru.hh.school.entity.Vacancy;
+import ru.hh.school.dto.VacancyOuterDtoDetailed;
+import ru.hh.school.dto.VacancyOuterDtoShort;
+import ru.hh.school.exceptions.HhApiException;
 import ru.hh.school.util.Pagination;
-import ru.hh.school.util.json.views.CombinationViews;
 
 import java.util.List;
 
@@ -15,11 +15,11 @@ public class VacancyOuterService extends AbstractOuterEntityGetter {
         return "https://api.hh.ru/vacancies";
     }
 
-    public List<Vacancy> getVacancies(String query, Pagination pagination) throws OuterAPIException, JsonProcessingException {
-        return getEntities(query, pagination, Vacancy.class, CombinationViews.EmployerShortAndVacancyShort.class);
+    public List<VacancyOuterDtoShort> getVacancies(String query, Pagination pagination) throws HhApiException {
+        return getEntities(query, pagination, VacancyOuterDtoShort.class);
     }
 
-    public Vacancy getVacancy(Long id) throws OuterAPIException, JsonProcessingException {
-        return getEntity(id, Vacancy.class, CombinationViews.EmployerShortAndVacancyDetailed.class);
+    public VacancyOuterDtoDetailed getVacancy(Long id) throws HhApiException {
+        return getEntity(id, VacancyOuterDtoDetailed.class);
     }
 }

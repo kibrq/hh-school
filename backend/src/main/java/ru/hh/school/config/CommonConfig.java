@@ -17,6 +17,7 @@ import ru.hh.school.resource.VacancyResource;
 import ru.hh.school.service.*;
 import ru.hh.school.resource.EmployerResource;
 import ru.hh.school.resource.FavoritesEmployerResource;
+import ru.hh.school.util.PopularityDecider;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -34,11 +35,14 @@ import java.util.Properties;
         FavoritesVacancyResource.class,
         EmployerOuterService.class,
         VacancyOuterService.class,
-        EmployerFavoritesService.class,
-        VacancyFavoritesService.class,
+        FavoritesVacancyService.class,
+        FavoritesEmployerService.class,
+        PopularityDecider.class,
         GenericDao.class
 })
 public class CommonConfig {
+
+    public CommonConfig() {}
 
     @Bean
     public DataSource dataSource(DataSourceFactory dataSourceFactory, FileSettings fileSettings) {
@@ -50,6 +54,10 @@ public class CommonConfig {
         return PropertiesUtils.fromFilesInSettingsDir("service.properties");
     }
 
+    @Bean("popularity_threshold")
+    public Integer popularityThreshold(FileSettings fileSettings) {
+        return fileSettings.getInteger("popularity.threshold");
+    }
 
     @Bean
     public MappingConfig mappingConfig() {
@@ -58,7 +66,7 @@ public class CommonConfig {
         return mappingConfig;
     }
 
-    @Bean(name = "sessionFactory")
+    @Bean
     public SessionFactory sessionFactory(NabSessionFactoryBean sessionFactoryBean) {
         return sessionFactoryBean.getObject();
     }
