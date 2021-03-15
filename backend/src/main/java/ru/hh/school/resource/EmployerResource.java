@@ -1,0 +1,34 @@
+package ru.hh.school.resource;
+
+import ru.hh.school.exceptions.HhApiException;
+import ru.hh.school.service.EmployerOuterService;
+import ru.hh.school.util.Pagination;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+@Path("/employer")
+public class EmployerResource {
+
+    private final EmployerOuterService outerService;
+
+    public EmployerResource(EmployerOuterService outerService) {
+        this.outerService = outerService;
+    }
+
+    @GET
+    @Path("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEmployers(@QueryParam("query") String query, @QueryParam("page") Integer page, @QueryParam("per_page") Integer perPage) throws HhApiException {
+        return Response.ok(outerService.getEmployers(query, new Pagination(page, perPage))).build();
+    }
+
+
+    @GET
+    @Path("/{employerId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEmployer(@PathParam("employerId") Long employerId) throws HhApiException {
+        return Response.ok(outerService.getEmployer(employerId)).build();
+    }
+}
